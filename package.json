@@ -1,0 +1,45 @@
+{
+    "author": "DLevine.us",
+    "dependencies": {},
+    "keywords": [],
+    "name": "nyctime",
+    "pebble": {
+        "displayName": "NYCTime",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/bt-icon.png",
+                    "name": "IMAGE_BT_ICON",
+                    "targetPlatforms": null,
+                    "type": "png-trans"
+                },
+                {
+                    "file": "fonts/Helvetica.ttf",
+                    "name": "HELVETICA_28",
+                    "targetPlatforms": null,
+                    "type": "font"
+                },
+                {
+                    "file": "fonts/Helvetica.ttf",
+                    "name": "HELVETICA_33",
+                    "targetPlatforms": null,
+                    "trackingAdjust": 17,
+                    "type": "font"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt"
+        ],
+        "uuid": "d497ae96-a018-4f22-a83a-18edbba8a8ec",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "2.0.0"
+}
