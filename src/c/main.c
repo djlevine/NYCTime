@@ -59,7 +59,7 @@ void station_load() {
 };
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  update_time(); //Possibly not needed
+  update_time();
   int minutes = tick_time->tm_min;
   int x = 0;
     if(minutes == 47 || minutes == 15 || minutes == 30 || minutes == 45)
@@ -109,8 +109,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   int hourTwo = hour % 10; // Get the second digit of the hours
   int minOne = round(tm_struct->tm_min/10); //Get the first digit of minutes
   int minTwo = tm_struct->tm_min % 10; // Get the second digit of minutes using mod to remove the first
-  
-  // APP_LOG(APP_LOG_LEVEL_DEBUG, "%d", minOne);
   //Let's define the colors
   // https://developer.pebble.com/guides/tools-and-resources/color-picker/
   GColor watchcolor[]={
