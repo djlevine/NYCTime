@@ -62,7 +62,6 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time(); //Possibly not needed
   int minutes = tick_time->tm_min;
   int x = 0;
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Tick handler run at %d", minutes);//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if(minutes == 47 || minutes == 15 || minutes == 30 || minutes == 45)
     {
       //In lieu of using seconds and constantly redrawing the screen. Added a switch (x) 
@@ -101,7 +100,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   time_t rawtime; 
   time (&rawtime); 
   struct tm *tm_struct = localtime(&rawtime);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "shape_update_proc run at %d", tm_struct->tm_min);//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //Break down the time into each digit so we can use
   //those digits to assign colors below
   int hour = tm_struct->tm_hour; //Get the hours
@@ -200,17 +198,16 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
 };
 
 static void main_window_load(Window *window) {
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "main_window_load");//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Get information about the Window and set background
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
+  window_set_background_color(s_main_window, GColorBlack);
   
   //Define circle layer
   shape_layer = layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
   //Add all layers to the app window
   layer_add_child(window_layer, shape_layer);
-  
-  window_set_background_color(s_main_window, GColorBlack);
+
   //Create station stop text
   s_text_layer = text_layer_create(GRect(3, 23, bounds.size.w, 100));
   //Create hour text
@@ -218,12 +215,10 @@ static void main_window_load(Window *window) {
   // Create the BitmapLayer
   s_bitmap_layer = bitmap_layer_create(GRect(126, 5, 15, 15));
   //Set hour text attributes
-  text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorWhite);
-  text_layer_set_text(s_time_layer, "0000");
+   //text_layer_set_text(s_time_layer, "0000"); //+++ Used to set default time. Not necessary
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   //Set station stop text attributes
-  text_layer_set_background_color(s_text_layer, GColorClear);
   text_layer_set_text_color(s_text_layer, GColorWhite);
   text_layer_set_text_alignment(s_text_layer, GTextAlignmentLeft);
   //Load custom resources (same font in two sizes)
@@ -238,8 +233,6 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bitmap_layer));
-  //Hide the Bluetooth notification by default
-  layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);
   //Randomly generate the first station
   station_load();
 };
@@ -251,12 +244,10 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_text_layer);
   bitmap_layer_destroy(s_bitmap_layer);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "main_window_unload");//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 };
 
 
 static void init(void) {
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "init");//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   // Set handlers to manage the elements inside the Window
@@ -268,12 +259,15 @@ static void init(void) {
   bluetooth_connection_service_subscribe(bt_handler);
   //Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true); 
+  
+  //Set default properties
+  layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);  //Set BT icon to hidden
+  text_layer_set_background_color(s_time_layer, GColorClear);  //Used to set default background
+  text_layer_set_background_color(s_text_layer, GColorClear);  //Used to set default background
+  layer_set_update_proc(shape_layer, shape_update_proc);  //Draw all of the shapes on the shape layer
+  
   // Make sure the time is displayed from the start
-  update_time();
-  
-  //Draw all of the shapes on the shape layer
-  layer_set_update_proc(shape_layer, shape_update_proc);
-  
+  update_time();  
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 };
