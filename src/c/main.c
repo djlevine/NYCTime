@@ -11,7 +11,6 @@ static GFont s_time_font;
 static GFont s_text_font;
 static GBitmap *s_bitmap;
 static BitmapLayer *s_bitmap_layer;
-int x;
 
 static void update_time() {
   // Get a tm structure
@@ -20,7 +19,6 @@ static void update_time() {
   // Write the current hours and minutes into a buffer
   static char s_buffer[16];
   strftime(s_buffer, sizeof(s_buffer),clock_is_24h_style() ? "%H%M" : "%I%M", tick_time);
-
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
 };
@@ -61,8 +59,10 @@ void station_load() {
 };
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  //update_time(); //Possibly not needed
+  update_time(); //Possibly not needed
   int minutes = tick_time->tm_min;
+  int x = 0;
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Tick handler run at %d", minutes);//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if(minutes == 47 || minutes == 15 || minutes == 30 || minutes == 45)
     {
       //In lieu of using seconds and constantly redrawing the screen. Added a switch (x) 
@@ -77,6 +77,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
       x=0;
     };
   //Repeats at 0, 15, 30, 45 preventing constant checking and redrawing of the interface.
+  
 };
 
 //Bluetooth notification actions
@@ -94,12 +95,13 @@ void bt_handler(bool connected) {
   };
 };
 
-static void shape_update_proc(Layer *this_layer, GContext *ctx) { 
+static void shape_update_proc(Layer *this_layer, GContext *ctx) {
+  static int posH = 147;
   //Get the current time as a struct
   time_t rawtime; 
   time (&rawtime); 
   struct tm *tm_struct = localtime(&rawtime);
-  
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "shape_update_proc run at %d", tm_struct->tm_min);//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //Break down the time into each digit so we can use
   //those digits to assign colors below
   int hour = tm_struct->tm_hour; //Get the hours
@@ -130,10 +132,10 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   graphics_fill_rect(ctx, GRect(0, 25, 144, 3), 0, GCornerNone);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
-  GPoint centerH = GPoint(17, (147));
+  GPoint centerH = GPoint(17, (posH));
   if (hour < 10){
     //Since we're making 0 black draw an outer white circle first
-    GPoint outerH = GPoint(17, (147));
+    GPoint outerH = GPoint(17, (posH));
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerH, 17);
     
@@ -148,16 +150,16 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //10 hour circle 
   if (hourTwo == 0){
     //Since we're making 0 black draw an outer white circle first
-    GPoint outerHH = GPoint(53, (147));
+    GPoint outerHH = GPoint(53, (posH));
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerHH, 17);
     
-    GPoint centerHH = GPoint(53, (147));
+    GPoint centerHH = GPoint(53, (posH));
     graphics_context_set_fill_color(ctx, watchcolor[0]);
     graphics_fill_circle(ctx, centerHH, 16);
   }
   else{
-    GPoint centerHH = GPoint(53, (147));
+    GPoint centerHH = GPoint(53, (posH));
     graphics_context_set_fill_color(ctx, watchcolor[hourTwo]);
     graphics_fill_circle(ctx, centerHH, 17);
   }; 
@@ -165,32 +167,32 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //10 Minute Circle and fill circle
   if (minOne == 0){
     //Since we're making 0 black draw an outer white circle first
-    GPoint outerM = GPoint(89, (147));
+    GPoint outerM = GPoint(89, (posH));
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerM, 17);
     
-    GPoint centerM = GPoint(89, (147));
+    GPoint centerM = GPoint(89, (posH));
     graphics_context_set_fill_color(ctx, watchcolor[0]);
     graphics_fill_circle(ctx, centerM, 16);
   }
   else{
-    GPoint centerM = GPoint(89, (147));
+    GPoint centerM = GPoint(89, (posH));
     graphics_context_set_fill_color(ctx, watchcolor[minOne]);
     graphics_fill_circle(ctx, centerM, 17);
   };
   //01 minute circle and fill circle  
   if (minTwo == 0){
     //Since we're making 0 black draw an outer white circle first
-    GPoint outerMM = GPoint(125, (147));
+    GPoint outerMM = GPoint(125, (posH));
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerMM, 17);
     
-    GPoint centerMM = GPoint(125, (147));
+    GPoint centerMM = GPoint(125, (posH));
     graphics_context_set_fill_color(ctx, watchcolor[0]);
     graphics_fill_circle(ctx, centerMM, 16);
   }
   else{
-    GPoint centerMM = GPoint(125, (147));
+    GPoint centerMM = GPoint(125, (posH));
     graphics_context_set_fill_color(ctx, watchcolor[minTwo]);
     graphics_fill_circle(ctx, centerMM, 17);
   };
@@ -198,9 +200,16 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
 };
 
 static void main_window_load(Window *window) {
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "main_window_load");//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Get information about the Window and set background
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
+  
+  //Define circle layer
+  shape_layer = layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
+  //Add all layers to the app window
+  layer_add_child(window_layer, shape_layer);
+  
   window_set_background_color(s_main_window, GColorBlack);
   //Create station stop text
   s_text_layer = text_layer_create(GRect(3, 23, bounds.size.w, 100));
@@ -224,12 +233,8 @@ static void main_window_load(Window *window) {
   //Apply custom fonts
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_font(s_text_layer, s_text_font);
-  //Define circle layer
-  shape_layer = layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
   //Set the bitmap
   bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
-  //Add all layers to the app window
-  layer_add_child(window_layer, shape_layer);
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bitmap_layer));
@@ -237,8 +242,6 @@ static void main_window_load(Window *window) {
   layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);
   //Randomly generate the first station
   station_load();
-  //Draw all of the shapes on the shape layer
-  layer_set_update_proc(shape_layer, shape_update_proc);
 };
 
 
@@ -248,10 +251,12 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_text_layer);
   bitmap_layer_destroy(s_bitmap_layer);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "main_window_unload");//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 };
 
 
 static void init(void) {
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "init");//+++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   // Set handlers to manage the elements inside the Window
@@ -265,6 +270,10 @@ static void init(void) {
   window_stack_push(s_main_window, true); 
   // Make sure the time is displayed from the start
   update_time();
+  
+  //Draw all of the shapes on the shape layer
+  layer_set_update_proc(shape_layer, shape_update_proc);
+  
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 };
