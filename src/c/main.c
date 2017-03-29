@@ -5,7 +5,6 @@
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
-static TextLayer *s_time_layerM;
 static TextLayer *s_text_layer;
 static Layer *shape_layer;
 static GFont s_time_font;
@@ -19,16 +18,11 @@ static void update_time() {
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
   // Write the current hours and minutes into a buffer
-  static char s_buffer[8];
-  static char s_bufferM[8];
-  strftime(s_buffer, sizeof(s_buffer), clock_is_24h_style() ?
-                                          "%H" : "%I", tick_time);
-  
-  strftime(s_bufferM, sizeof(s_bufferM), clock_is_24h_style() ?
-                                          "%M" : "%M", tick_time);
+  static char s_buffer[16];
+  strftime(s_buffer, sizeof(s_buffer),clock_is_24h_style() ? "%H%M" : "%I%M", tick_time);
+
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
-  text_layer_set_text(s_time_layerM, s_bufferM);
 };
 
 void station_load() {
@@ -66,10 +60,8 @@ void station_load() {
   text_layer_set_text(s_text_layer, stations[random_number]);
 };
 
-
-
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  update_time();
+  //update_time(); //Possibly not needed
   int minutes = tick_time->tm_min;
     if(minutes == 47 || minutes == 15 || minutes == 30 || minutes == 45)
     {
@@ -114,7 +106,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   if (hour > 12){ hour = hour - 12;};//Convert to 12hr
   //First digit of hour is always 1 or 0 so we skip that
   //We'll just use an if statement below to determine if hours is more than 10
-  
   int hourTwo = hour % 10; // Get the second digit of the hours
   int minOne = round(tm_struct->tm_min/10); //Get the first digit of minutes
   int minTwo = tm_struct->tm_min % 10; // Get the second digit of minutes using mod to remove the first
@@ -134,12 +125,10 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     GColorVividCerulean, //8 Train
     GColorRed, //9 Train
   };
-
   //Overline
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_rect(ctx, GRect(0, 25, 144, 3), 0, GCornerNone);
-  //+++++++++++++++++++++++++++++++++++
-  
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
   GPoint centerH = GPoint(17, (147));
   if (hour < 10){
@@ -155,7 +144,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     graphics_context_set_fill_color(ctx, watchcolor[1]);
     graphics_fill_circle(ctx, centerH, 17);
   };
-  //+++++++++++++++++++++++++++++++++++++
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //10 hour circle 
   if (hourTwo == 0){
     //Since we're making 0 black draw an outer white circle first
@@ -171,12 +160,9 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     GPoint centerHH = GPoint(53, (147));
     graphics_context_set_fill_color(ctx, watchcolor[hourTwo]);
     graphics_fill_circle(ctx, centerHH, 17);
-  };
-  
-  //+++++++++++++++++++++++++++++++++++++
-
+  }; 
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //10 Minute Circle and fill circle
-  
   if (minOne == 0){
     //Since we're making 0 black draw an outer white circle first
     GPoint outerM = GPoint(89, (147));
@@ -192,9 +178,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     graphics_context_set_fill_color(ctx, watchcolor[minOne]);
     graphics_fill_circle(ctx, centerM, 17);
   };
-  
-
-  
   //01 minute circle and fill circle  
   if (minTwo == 0){
     //Since we're making 0 black draw an outer white circle first
@@ -211,6 +194,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     graphics_context_set_fill_color(ctx, watchcolor[minTwo]);
     graphics_fill_circle(ctx, centerMM, 17);
   };
+  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 };
 
 static void main_window_load(Window *window) {
@@ -221,21 +205,14 @@ static void main_window_load(Window *window) {
   //Create station stop text
   s_text_layer = text_layer_create(GRect(3, 23, bounds.size.w, 100));
   //Create hour text
-  s_time_layer = text_layer_create(GRect(-28, 126, bounds.size.w, 50));
-  //Create minute text
-  s_time_layerM = text_layer_create(GRect(44, 126, bounds.size.w, 50));
+  s_time_layer = text_layer_create(GRect(8, 126, bounds.size.w, 100));
   // Create the BitmapLayer
   s_bitmap_layer = bitmap_layer_create(GRect(126, 5, 15, 15));
   //Set hour text attributes
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorWhite);
-  text_layer_set_text(s_time_layer, "00");
+  text_layer_set_text(s_time_layer, "0000");
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
-  //Set minute text attributes
-  text_layer_set_background_color(s_time_layerM, GColorClear);
-  text_layer_set_text_color(s_time_layerM, GColorWhite);
-  text_layer_set_text(s_time_layerM, "00");
-  text_layer_set_text_alignment(s_time_layerM, GTextAlignmentCenter);
   //Set station stop text attributes
   text_layer_set_background_color(s_text_layer, GColorClear);
   text_layer_set_text_color(s_text_layer, GColorWhite);
@@ -246,7 +223,6 @@ static void main_window_load(Window *window) {
   s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BT_ICON_WHITE);
   //Apply custom fonts
   text_layer_set_font(s_time_layer, s_time_font);
-  text_layer_set_font(s_time_layerM, s_time_font);
   text_layer_set_font(s_text_layer, s_text_font);
   //Define circle layer
   shape_layer = layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
@@ -254,7 +230,6 @@ static void main_window_load(Window *window) {
   bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
   //Add all layers to the app window
   layer_add_child(window_layer, shape_layer);
-  layer_add_child(window_layer, text_layer_get_layer(s_time_layerM));
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bitmap_layer));
@@ -271,7 +246,6 @@ static void main_window_unload(Window *window) {
   //Destroy layers on window unload
   layer_destroy(shape_layer);
   text_layer_destroy(s_time_layer);
-  text_layer_destroy(s_time_layerM);
   text_layer_destroy(s_text_layer);
   bitmap_layer_destroy(s_bitmap_layer);
 };
