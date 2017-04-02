@@ -123,8 +123,10 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     if (hour > 12){hour = hour - 12;}
     else if(hour ==0){hour = 12;}
   };//Convert to 12hr
-  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour);
+
+  //Overline
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_fill_rect(ctx, GRect(0, 25, 155, 3), 0, GCornerNone);
   #if defined(PBL_COLOR) 
   //Check if we're in color
   //First digit of hour is always 1 or 0 so we skip that
@@ -146,9 +148,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     GColorVividCerulean, //8 Train
     GColorRed, //9 Train
   };
-  //Overline
-  graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_rect(ctx, GRect(0, 25, 155, 3), 0, GCornerNone);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
   GPoint centerH = GPoint(posL, posH);
