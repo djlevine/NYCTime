@@ -119,7 +119,12 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //those digits to assign colors below
   int hour = tm_struct->tm_hour; //Get the hours
   if(clock_is_24h_style()){}
-  else{if (hour > 12){ hour = hour - 12;};}//Convert to 12hr
+  else{
+    if (hour > 12){hour = hour - 12;}
+    else if(hour ==0){hour = 12;}
+  };//Convert to 12hr
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour);
   #if defined(PBL_COLOR) 
   //Check if we're in color
   //First digit of hour is always 1 or 0 so we skip that
