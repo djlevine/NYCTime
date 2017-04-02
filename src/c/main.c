@@ -98,6 +98,7 @@ void bt_handler(bool connected) {
   };
 };
 
+
 static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   int posH;
   int posL;
@@ -107,9 +108,14 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   #else
   posH = 147;
   posL = 17;
+    #if PBL_DISPLAY_WIDTH == 200
+      posH = 168;
+      posL = 45;
+    #else
+    #endif
   #endif
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "posL: %d", posL);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "posL: %d", posL);
 
   //Get the current time as a struct
   time_t rawtime; 
@@ -123,10 +129,17 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     if (hour > 12){hour = hour - 12;}
     else if(hour ==0){hour = 12;}
   };//Convert to 12hr
-
+  
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour);
+  
   //Overline
   graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_rect(ctx, GRect(0, 25, 155, 3), 0, GCornerNone);
+  
+  #if PBL_DISPLAY_HEIGHT == 228
+  graphics_fill_rect(ctx, GRect(0, 35, 200, 3), 0, GCornerNone);
+  #else
+  graphics_fill_rect(ctx, GRect(0, 25, 200, 3), 0, GCornerNone);
+  #endif
   #if defined(PBL_COLOR) 
   //Check if we're in color
   //First digit of hour is always 1 or 0 so we skip that
@@ -217,26 +230,26 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #else
     //Color for 1000
-    GPoint outerH = GPoint(17, (posH));
+    GPoint outerH = GPoint(posL, posH);
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerH, 17);
   
     //Color for 0100
-    GPoint outerHH = GPoint(53, (posH));
+    GPoint outerHH = GPoint(posL + 36, posH);
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerHH, 17);
   
     //Color for 0010
-    GPoint outerM = GPoint(89, (posH));
-    GPoint innerM = GPoint(89, (posH));
+    GPoint outerM = GPoint(posL + 72, posH);
+    GPoint innerM = outerM;
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerM, 17);
     graphics_context_set_fill_color(ctx, GColorBlack);
     graphics_fill_circle(ctx, innerM, 16);
   
     //Color for 0001
-    GPoint outerMM = GPoint(125, (posH));
-    GPoint innerMM = GPoint(125, (posH));
+    GPoint outerMM = GPoint(posL + 108, posH);
+    GPoint innerMM = outerMM;
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerMM, 17);
     graphics_context_set_fill_color(ctx, GColorBlack);
@@ -261,7 +274,13 @@ static void main_window_load(Window *window) {
   #else
   s_time_layer = text_layer_create(GRect(-28, 126, bounds.size.w, 50));//Create hour text
   s_time_layerM = text_layer_create(GRect(44, 126, bounds.size.w, 50));//Create minute text
-  s_text_layer = text_layer_create(GRect(3, 23, bounds.size.w, 100));//Create station stop text
+    #if defined(PBL_PLATFORM_EMERY)
+    s_time_layer = text_layer_create(GRect(-28, 146, bounds.size.w, 50));//Create hour text
+    s_time_layerM = text_layer_create(GRect(44, 146, bounds.size.w, 50));//Create minute text
+    s_text_layer = text_layer_create(GRect(27, 40, bounds.size.w, 100));//Create station stop text
+    #else
+    s_text_layer = text_layer_create(GRect(3, 23, bounds.size.w, 100));//Create station stop text
+    #endif
   #endif
   // Create the BitmapLayer
   s_bitmap_layer = bitmap_layer_create(GRect(126, 5, 15, 15));
