@@ -149,7 +149,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //Let's define the colors
   // https://developer.pebble.com/guides/tools-and-resources/color-picker/
   GColor watchcolor[]={
-    GColorBlack, // All 0s
+    GColorWhite,
     GColorRed, //1 Train
     GColorRed, //2 Train
     GColorRed, //3 Train
@@ -160,23 +160,10 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     GColorVividCerulean, //8 Train
     GColorRed, //9 Train
   };
-  GPoint centerH = GPoint(posL, posH);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
-  //drawTimeCircle(hourTwo, posL, posH, 36, ctx, watchcolor);
-  if (hour < 10){
-    //Since we're making 0 black draw an outer white circle first
-    GPoint outerH = GPoint(posL, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerH, 17);
-    
-    graphics_context_set_fill_color(ctx, watchcolor[0]);
-    graphics_fill_circle(ctx, centerH, 16);
-  }
-  else{
-    graphics_context_set_fill_color(ctx, watchcolor[1]);
-    graphics_fill_circle(ctx, centerH, 17);
-  };
+  hour = hour - 10;
+  drawTimeCircle(hour, posL, posH, 0, ctx, watchcolor);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //10 hour circle 
   drawTimeCircle(hourTwo, posL, posH, 36, ctx, watchcolor);
@@ -186,28 +173,18 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   drawTimeCircle(minTwo, posL, posH, 108, ctx, watchcolor);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #else
+  GColor watchcolor[]={
+    GColorBlack,
+    GColorWhite
+  };
     //Color for 1000
-    GPoint outerH = GPoint(posL, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerH, 17);
+    drawTimeCircle(1, posL, posH, 0, ctx, watchcolor);
     //Color for 0100
-    GPoint outerHH = GPoint(posL + 36, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerHH, 17);
+    drawTimeCircle(1, posL, posH, 36, ctx, watchcolor);
     //Color for 0010
-    GPoint outerM = GPoint(posL + 72, posH);
-    GPoint innerM = outerM;
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerM, 17);
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    graphics_fill_circle(ctx, innerM, 16);
+    drawTimeCircle(0, posL, posH, 72, ctx, watchcolor);
     //Color for 0001
-    GPoint outerMM = GPoint(posL + 108, posH);
-    GPoint innerMM = outerMM;
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerMM, 17);
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    graphics_fill_circle(ctx, innerMM, 16);
+    drawTimeCircle(0, posL, posH, 108, ctx, watchcolor);
 #endif
 };
 
@@ -216,18 +193,18 @@ void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, 
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "Reached drawTimeCircle for %i", timeDiv);
   if (timeDiv == 0){
     //Since we're making 0 black draw an outer white circle first
-    GPoint outerHH = GPoint(posL + Offset, posH);
+    GPoint outerCircle = GPoint(posL + Offset, posH);
     graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerHH, 17);
+    graphics_fill_circle(ctx, outerCircle, 17);
     
-    GPoint centerHH = GPoint(posL + Offset, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[0]);
-    graphics_fill_circle(ctx, centerHH, 16);
+    GPoint innerCircle = GPoint(posL + Offset, posH);
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_fill_circle(ctx, innerCircle, 16);
   }
   else{
-    GPoint centerHH = GPoint(posL + Offset, posH);
+    GPoint innerCircle = GPoint(posL + Offset, posH);
     graphics_context_set_fill_color(ctx, watchcolor[timeDiv]);
-    graphics_fill_circle(ctx, centerHH, 17);
+    graphics_fill_circle(ctx, innerCircle, 17);
   }; 
 }
 
@@ -246,13 +223,13 @@ static void main_window_load(Window *window) {
   s_time_layerM = text_layer_create(GRect(44, 113, bounds.size.w, 50));//Create minute text
   s_text_layer = text_layer_create(GRect(30, 23, bounds.size.w, 100));//Create station stop text
   #else
-  s_time_layer = text_layer_create(GRect(-28, 126, bounds.size.w, 50));//Create hour text
-  s_time_layerM = text_layer_create(GRect(44, 126, bounds.size.w, 50));//Create minute text
     #if defined(PBL_PLATFORM_EMERY)
     s_time_layer = text_layer_create(GRect(-28, 146, bounds.size.w, 50));//Create hour text
     s_time_layerM = text_layer_create(GRect(44, 146, bounds.size.w, 50));//Create minute text
     s_text_layer = text_layer_create(GRect(27, 40, bounds.size.w, 100));//Create station stop text
     #else
+    s_time_layer = text_layer_create(GRect(-28, 126, bounds.size.w, 50));//Create hour text
+    s_time_layerM = text_layer_create(GRect(44, 126, bounds.size.w, 50));//Create minute text
     s_text_layer = text_layer_create(GRect(3, 23, bounds.size.w, 100));//Create station stop text
     #endif
   #endif
