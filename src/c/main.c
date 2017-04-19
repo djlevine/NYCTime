@@ -29,12 +29,6 @@ static void update_time() {
 };
 
 void station_load() {
-  // Generate a random number
-  srand((unsigned) time(NULL));
-  //Random function starts at 0
-  //Rand up to the last number in the array
-  unsigned int random_number = rand()%21;
-  //number of items in the array (last index +1 for 0)
   const char *stations[]={
     "World\nTrade\nCenter",
     "Fulton\nStreet",
@@ -48,7 +42,7 @@ void station_load() {
     "Park\nPlace",
     "Wall\nStreet",
     "34 St\nHudson\nYards",
-    "W4",
+    "South\nFerry",
     "Jay Street\nMetroTech",
     "Chambers\nStreet",
     "Cortlandt\nStreet",
@@ -57,8 +51,16 @@ void station_load() {
     "34\nPenn\nStation",
     "Bklyn\nBridge",
     "City\nHall",
-    "Columbus\nCircle"
+    "Columbus\nCircle",
+    "B'Way\nJunction"
   };  
+  // Generate a random number
+  srand((unsigned) time(NULL));
+  //Random function starts at 0
+  //Rand up to the last number in the array
+  int len = sizeof(stations) / sizeof(stations[0])-1;
+  unsigned int random_number = rand()%len;
+  //number of items in the array (last index +1 for 0)
   //Write station stop name to the s_text_layer line
   text_layer_set_text(s_text_layer, stations[random_number]);
 };
@@ -67,21 +69,21 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
   int minutes = tick_time->tm_min;
   int x = 0;
-    if(minutes == 47 || minutes == 15 || minutes == 30 || minutes == 45)
+    if(minutes == 15 || minutes == 30 || minutes == 45 || minutes == 0)
     {
       //In lieu of using seconds and constantly redrawing the screen. Added a switch (x) 
       //If minutes match then change the station and flip the switch off
       if(x == 0){station_load();}
       //Flips the switch off
+      //***This also prevents a loop from occurring while checking what minute it is***/
+      //There is probably a better way to do this
       x=1;
     };
     //Flips the switch back on during the next minute
-      if(minutes == 48 || minutes == 16 || minutes == 31 || minutes == 46)
+      if(minutes == 16 || minutes == 31 || minutes == 46 || minutes == 1)
     {
       x=0;
-    };
-  //Repeats at 0, 15, 30, 45 preventing constant checking and redrawing of the interface.
-  
+    };  
 };
 
 //Bluetooth notification actions
@@ -129,7 +131,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     else if(hour ==0){hour = 12;}
   };//Convert to 12hr
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
   
   //Overline
   graphics_context_set_fill_color(ctx, GColorWhite);
@@ -162,7 +164,8 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   };
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
-  hour = hour - 10;
+  hour = floor(hour/10);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
   drawTimeCircle(hour, posL, posH, 0, ctx, watchcolor);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //10 hour circle 
