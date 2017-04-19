@@ -12,6 +12,7 @@ static GFont s_time_font;
 static GFont s_text_font;
 static GBitmap *s_bitmap;
 static BitmapLayer *s_bitmap_layer;
+void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, GColor *watchcolor);
 
 static void update_time() {
   // Get a tm structure
@@ -114,8 +115,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     #else
     #endif
   #endif
-  
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "posL: %d", posL);
 
   //Get the current time as a struct
   time_t rawtime; 
@@ -130,7 +129,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     else if(hour ==0){hour = 12;}
   };//Convert to 12hr
   
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
   
   //Overline
   graphics_context_set_fill_color(ctx, GColorWhite);
@@ -161,9 +160,10 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     GColorVividCerulean, //8 Train
     GColorRed, //9 Train
   };
+  GPoint centerH = GPoint(posL, posH);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
-  GPoint centerH = GPoint(posL, posH);
+  //drawTimeCircle(hourTwo, posL, posH, 36, ctx, watchcolor);
   if (hour < 10){
     //Since we're making 0 black draw an outer white circle first
     GPoint outerH = GPoint(posL, posH);
@@ -179,66 +179,21 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   };
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //10 hour circle 
-  if (hourTwo == 0){
-    //Since we're making 0 black draw an outer white circle first
-    GPoint outerHH = GPoint(posL + 36, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerHH, 17);
-    
-    GPoint centerHH = GPoint(posL + 36, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[0]);
-    graphics_fill_circle(ctx, centerHH, 16);
-  }
-  else{
-    GPoint centerHH = GPoint(posL + 36, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[hourTwo]);
-    graphics_fill_circle(ctx, centerHH, 17);
-  }; 
-  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  drawTimeCircle(hourTwo, posL, posH, 36, ctx, watchcolor);
   //10 Minute Circle and fill circle
-  if (minOne == 0){
-    //Since we're making 0 black draw an outer white circle first
-    GPoint outerM = GPoint(posL + 72, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerM, 17);
-    
-    GPoint centerM = GPoint(posL + 72, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[0]);
-    graphics_fill_circle(ctx, centerM, 16);
-  }
-  else{
-    GPoint centerM = GPoint(posL + 72, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[minOne]);
-    graphics_fill_circle(ctx, centerM, 17);
-  };
+  drawTimeCircle(minOne, posL, posH, 72, ctx, watchcolor);
   //01 minute circle and fill circle  
-  if (minTwo == 0){
-    //Since we're making 0 black draw an outer white circle first
-    GPoint outerMM = GPoint(posL + 108, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerMM, 17);
-    
-    GPoint centerMM = GPoint(posL + 108, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[0]);
-    graphics_fill_circle(ctx, centerMM, 16);
-  }
-  else{
-    GPoint centerMM = GPoint(posL + 108, posH);
-    graphics_context_set_fill_color(ctx, watchcolor[minTwo]);
-    graphics_fill_circle(ctx, centerMM, 17);
-  };
+  drawTimeCircle(minTwo, posL, posH, 108, ctx, watchcolor);
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #else
     //Color for 1000
     GPoint outerH = GPoint(posL, posH);
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerH, 17);
-  
     //Color for 0100
     GPoint outerHH = GPoint(posL + 36, posH);
     graphics_context_set_fill_color(ctx, GColorWhite);
     graphics_fill_circle(ctx, outerHH, 17);
-  
     //Color for 0010
     GPoint outerM = GPoint(posL + 72, posH);
     GPoint innerM = outerM;
@@ -246,7 +201,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     graphics_fill_circle(ctx, outerM, 17);
     graphics_context_set_fill_color(ctx, GColorBlack);
     graphics_fill_circle(ctx, innerM, 16);
-  
     //Color for 0001
     GPoint outerMM = GPoint(posL + 108, posH);
     GPoint innerMM = outerMM;
@@ -256,6 +210,26 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     graphics_fill_circle(ctx, innerMM, 16);
 #endif
 };
+
+//Function to draw colored circles for 0111 - does not draw for first digit yet
+void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, GColor *watchcolor){
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Reached drawTimeCircle for %i", timeDiv);
+  if (timeDiv == 0){
+    //Since we're making 0 black draw an outer white circle first
+    GPoint outerHH = GPoint(posL + Offset, posH);
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_fill_circle(ctx, outerHH, 17);
+    
+    GPoint centerHH = GPoint(posL + Offset, posH);
+    graphics_context_set_fill_color(ctx, watchcolor[0]);
+    graphics_fill_circle(ctx, centerHH, 16);
+  }
+  else{
+    GPoint centerHH = GPoint(posL + Offset, posH);
+    graphics_context_set_fill_color(ctx, watchcolor[timeDiv]);
+    graphics_fill_circle(ctx, centerHH, 17);
+  }; 
+}
 
 static void main_window_load(Window *window) {
   // Get information about the Window and set background
@@ -337,13 +311,13 @@ static void init(void) {
   }); 
   // Subscribe to get connection events
   bluetooth_connection_service_subscribe(bt_handler);
-  //Show the Window on the watch, with animated=true
-  window_stack_push(s_main_window, true); 
+  //Show the Window on the watch, with animated=false
+  window_stack_push(s_main_window, false); 
   
   //Set default properties
   layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);  //Set BT icon to hidden
   text_layer_set_background_color(s_time_layer, GColorClear);  //Used to set default background
-    text_layer_set_background_color(s_time_layerM, GColorClear);  //Used to set default background
+  text_layer_set_background_color(s_time_layerM, GColorClear);  //Used to set default background
   text_layer_set_background_color(s_text_layer, GColorClear);  //Used to set default background
   layer_set_update_proc(shape_layer, shape_update_proc);  //Draw all of the shapes on the shape layer
   
