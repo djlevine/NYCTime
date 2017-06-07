@@ -130,12 +130,9 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
     if (hour > 12){hour = hour - 12;}
     else if(hour ==0){hour = 12;}
   };//Convert to 12hr
-  
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
-  
   //Overline
   graphics_context_set_fill_color(ctx, GColorWhite);
-  
   #if PBL_DISPLAY_HEIGHT == 228
   graphics_fill_rect(ctx, GRect(0, 35, 200, 3), 0, GCornerNone);
   #else
@@ -151,7 +148,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //Let's define the colors
   // https://developer.pebble.com/guides/tools-and-resources/color-picker/
   GColor watchcolor[]={
-    GColorWhite,
+    GColorLightGray,
     GColorRed, //1 Train
     GColorRed, //2 Train
     GColorRed, //3 Train
@@ -167,7 +164,6 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   hour = floor(hour/10);
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
   drawTimeCircle(hour, posL, posH, 0, ctx, watchcolor);
-  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //10 hour circle 
   drawTimeCircle(hourTwo, posL, posH, 36, ctx, watchcolor);
   //10 Minute Circle and fill circle
@@ -193,22 +189,9 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
 
 //Function to draw colored circles for 0111 - does not draw for first digit yet
 void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, GColor *watchcolor){
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Reached drawTimeCircle for %i", timeDiv);
-  if (timeDiv == 0){
-    //Since we're making 0 black draw an outer white circle first
-    GPoint outerCircle = GPoint(posL + Offset, posH);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, outerCircle, 17);
-    
-    GPoint innerCircle = GPoint(posL + Offset, posH);
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    graphics_fill_circle(ctx, innerCircle, 16);
-  }
-  else{
     GPoint innerCircle = GPoint(posL + Offset, posH);
     graphics_context_set_fill_color(ctx, watchcolor[timeDiv]);
     graphics_fill_circle(ctx, innerCircle, 17);
-  }; 
 }
 
 static void main_window_load(Window *window) {
@@ -216,7 +199,6 @@ static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   window_set_background_color(s_main_window, GColorBlack);
-  
   //Define circle layer
   shape_layer = layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
   //Add all layers to the app window
@@ -270,7 +252,6 @@ static void main_window_load(Window *window) {
   station_load();
 };
 
-
 static void main_window_unload(Window *window) {
   //Destroy layers on window unload
   layer_destroy(shape_layer);
@@ -279,7 +260,6 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_text_layer);
   bitmap_layer_destroy(s_bitmap_layer);
 };
-
 
 static void init(void) {
   // Create main Window element and assign to pointer
