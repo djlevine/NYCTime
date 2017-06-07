@@ -192,6 +192,19 @@ void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, 
     GPoint innerCircle = GPoint(posL + Offset, posH);
     graphics_context_set_fill_color(ctx, watchcolor[timeDiv]);
     graphics_fill_circle(ctx, innerCircle, 17);
+  
+    #if defined(PBL_BW)
+      if (timeDiv == 0){
+        //Since we're making 0 black draw an outer white circle first
+        GPoint outerCircle = GPoint(posL + Offset, posH);
+        graphics_context_set_fill_color(ctx, GColorWhite);
+        graphics_fill_circle(ctx, outerCircle, 17);
+          
+        GPoint innerCircle = GPoint(posL + Offset, posH);
+        graphics_context_set_fill_color(ctx, GColorBlack);
+        graphics_fill_circle(ctx, innerCircle, 16);
+      }
+    #endif
 }
 
 static void main_window_load(Window *window) {
