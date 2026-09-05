@@ -58,7 +58,7 @@ void station_load() {
   srand((unsigned) time(NULL));
   //Random function starts at 0
   //Rand up to the last number in the array
-  int len = sizeof(stations) / sizeof(stations[0])-1;
+  int len = sizeof(stations) / sizeof(stations[0]); //-1 was here (I suspect because of a but in the way that sizeof works)
   unsigned int random_number = rand()%len;
   //number of items in the array (last index +1 for 0)
   //Write station stop name to the s_text_layer line
