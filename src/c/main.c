@@ -1,7 +1,7 @@
 #include <pebble.h>     /* Pebble */
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
-#include <math.h>       /* math */
+//#include <math.h>       /* math */
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -130,7 +130,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //First digit of hour is always 1 or 0 so we skip that
   //We'll just use an if statement below to determine if hours is more than 10
   int hourTwo = hour % 10; // Get the second digit of the hours
-  int minOne = round(tm_struct->tm_min/10); //Get the first digit of minutes
+  int minOne = tm_struct->tm_min/10; //Get the first digit of minutes
   int minTwo = tm_struct->tm_min % 10; // Get the second digit of minutes using mod to remove the first
   //Let's define the colors
   // https://developer.pebble.com/guides/tools-and-resources/color-picker/
@@ -148,7 +148,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   };
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //01 hour circle
-  hour = floor(hour/10);
+  hour = hour/10;
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "Hour is: %d", hour); // This gets called three times per launch
   drawTimeCircle(hour, posL, posH, 0, ctx, watchcolor);
   //10 hour circle 
