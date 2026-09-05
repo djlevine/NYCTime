@@ -112,7 +112,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //Break down the time into each digit so we can use
   //those digits to assign colors below
   int hour = tm_struct->tm_hour; //Get the hours
-  if(clock_is_24h_style()){}
+  // if(clock_is_24h_style()){}
   else{
     if (hour > 12){hour = hour - 12;}
     else if(hour ==0){hour = 12;}
@@ -195,6 +195,12 @@ void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, 
 }
 
 static void main_window_load(Window *window) {
+  //Set default properties
+  layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);  //Set BT icon to hidden
+  text_layer_set_background_color(s_time_layer, GColorClear);  //Used to set default background
+  text_layer_set_background_color(s_time_layerM, GColorClear);  //Used to set default background
+  text_layer_set_background_color(s_text_layer, GColorClear);  //Used to set default background
+  layer_set_update_proc(shape_layer, shape_update_proc);  //Draw all of the shapes on the shape layer
   // Get information about the Window and set background
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -254,6 +260,9 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   //Destroy layers on window unload
+  fonts_unload_custom_font(s_time_font);
+  fonts_unload_custom_font(s_text_font);
+  gbitmap_destroy(s_bitmap);
   layer_destroy(shape_layer);
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_time_layerM);
@@ -274,13 +283,7 @@ static void init(void) {
   //Show the Window on the watch, with animated=false
   window_stack_push(s_main_window, false); 
   
-  //Set default properties
-  layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);  //Set BT icon to hidden
-  text_layer_set_background_color(s_time_layer, GColorClear);  //Used to set default background
-  text_layer_set_background_color(s_time_layerM, GColorClear);  //Used to set default background
-  text_layer_set_background_color(s_text_layer, GColorClear);  //Used to set default background
-  layer_set_update_proc(shape_layer, shape_update_proc);  //Draw all of the shapes on the shape layer
-  
+
   // Make sure the time is displayed from the start
   update_time();  
   // Register with TickTimerService
