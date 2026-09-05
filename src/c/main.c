@@ -291,7 +291,9 @@ static void init(void) {
 
 static void deinit() {
   // Destroy Window
-   window_destroy(s_main_window);
+  window_destroy(s_main_window);
+  tick_timer_service_unsubscribe();
+  bluetooth_connection_service_unsubscribe();
 };
 
 int main(void) {
