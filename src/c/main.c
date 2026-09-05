@@ -112,8 +112,7 @@ static void shape_update_proc(Layer *this_layer, GContext *ctx) {
   //Break down the time into each digit so we can use
   //those digits to assign colors below
   int hour = tm_struct->tm_hour; //Get the hours
-  // if(clock_is_24h_style()){}
-  else{
+  if(!clock_is_24h_style()){
     if (hour > 12){hour = hour - 12;}
     else if(hour ==0){hour = 12;}
   };//Convert to 12hr
