@@ -233,7 +233,7 @@ static void main_window_load(Window *window) {
   //Load custom resources (same font in two sizes)
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_HELVETICA_33));
   s_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_HELVETICA_28));
-  s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BT_ICON);
+  s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BT_ICON_WHITE);
   //Apply custom fonts
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_font(s_time_layerM, s_time_font);
