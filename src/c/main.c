@@ -68,22 +68,9 @@ void station_load() {
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
   int minutes = tick_time->tm_min;
-  int x = 0;
-    if(minutes == 15 || minutes == 30 || minutes == 45 || minutes == 0)
-    {
-      //In lieu of using seconds and constantly redrawing the screen. Added a switch (x) 
-      //If minutes match then change the station and flip the switch off
-      if(x == 0){station_load();}
-      //Flips the switch off
-      //***This also prevents a loop from occurring while checking what minute it is***/
-      //There is probably a better way to do this
-      x=1;
-    };
-    //Flips the switch back on during the next minute
-      if(minutes == 16 || minutes == 31 || minutes == 46 || minutes == 1)
-    {
-      x=0;
-    };  
+    if(minutes == 15 || minutes == 30 || minutes == 45 || minutes == 0){
+      station_load();
+    }; 
 };
 
 //Bluetooth notification actions
