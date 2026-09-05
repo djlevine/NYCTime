@@ -1,7 +1,6 @@
 #include <pebble.h>     /* Pebble */
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
-//#include <math.h>       /* math */
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -54,11 +53,9 @@ void station_load() {
     "Columbus\nCircle",
     "B'Way\nJunction"
   };  
-  // Generate a random number
-  srand((unsigned) time(NULL));
   //Random function starts at 0
   //Rand up to the last number in the array
-  int len = sizeof(stations) / sizeof(stations[0]); //-1 was here (I suspect because of a but in the way that sizeof works)
+  int len = sizeof(stations) / sizeof(stations[0]);
   unsigned int random_number = rand()%len;
   //number of items in the array (last index +1 for 0)
   //Write station stop name to the s_text_layer line
@@ -270,6 +267,8 @@ static void main_window_unload(Window *window) {
 };
 
 static void init(void) {
+  // Generate a random number
+  srand((unsigned) time(NULL));
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   // Set handlers to manage the elements inside the Window
