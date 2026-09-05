@@ -18,7 +18,7 @@
                 },
                 {
                     "file": "images/bt-icon-connected.png",
-                    "name": "RESOURCE_ID_IMAGE_BT_ICON_WHITE",
+                    "name": "IMAGE_BT_ICON_WHITE",
                     "targetPlatforms": null,
                     "type": "png-trans"
                 },
