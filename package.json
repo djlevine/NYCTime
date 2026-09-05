@@ -17,6 +17,12 @@
                     "type": "png-trans"
                 },
                 {
+                    "file": "images/bt-icon-connected.png",
+                    "name": "RESOURCE_ID_IMAGE_BT_ICON_WHITE",
+                    "targetPlatforms": null,
+                    "type": "png-trans"
+                },
+                {
                     "file": "fonts/Helvetica.ttf",
                     "name": "HELVETICA_28",
                     "targetPlatforms": null,
