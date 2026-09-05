@@ -194,12 +194,6 @@ void drawTimeCircle(int timeDiv, int posL, int posH, int Offset, GContext *ctx, 
 }
 
 static void main_window_load(Window *window) {
-  //Set default properties
-  layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);  //Set BT icon to hidden
-  text_layer_set_background_color(s_time_layer, GColorClear);  //Used to set default background
-  text_layer_set_background_color(s_time_layerM, GColorClear);  //Used to set default background
-  text_layer_set_background_color(s_text_layer, GColorClear);  //Used to set default background
-  layer_set_update_proc(shape_layer, shape_update_proc);  //Draw all of the shapes on the shape layer
   // Get information about the Window and set background
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
@@ -255,6 +249,12 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bitmap_layer));
   //Randomly generate the first station
   station_load();
+  //Set default properties
+  layer_set_hidden(bitmap_layer_get_layer(s_bitmap_layer), true);  //Set BT icon to hidden
+  text_layer_set_background_color(s_time_layer, GColorClear);  //Used to set default background
+  text_layer_set_background_color(s_time_layerM, GColorClear);  //Used to set default background
+  text_layer_set_background_color(s_text_layer, GColorClear);  //Used to set default background
+  layer_set_update_proc(shape_layer, shape_update_proc);  //Draw all of the shapes on the shape layer
 };
 
 static void main_window_unload(Window *window) {
